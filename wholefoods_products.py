@@ -4,7 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException, NoAlertPresentException
 
-def get_visible_products(driver, elements, seen_html):
+def get_visible_products(driver, elements, saved_html):
     """
     Gets all products elements and html visible on a page
     Html is necessary for the function to halt
@@ -17,8 +17,8 @@ def get_visible_products(driver, elements, seen_html):
     for product in product_elements:
         try:
             html = product.get_attribute("outerHTML")
-            if html not in seen_html:
-                seen_html.add(html)
+            if html not in saved_html:
+                saved_html.add(html)
                 elements.append(product)
         except StaleElementReferenceException:
             continue
@@ -30,10 +30,10 @@ def get_product_elements(driver):
     Collects the products as it scrolls
     """
     product_elements = []
-    seen_html = set()
+    saved_html = set()
 
     # collect products initially on the page
-    get_visible_products(driver, product_elements, seen_html)
+    get_visible_products(driver, product_elements, saved_html)
     p_count = len(product_elements)
 
     while True:
@@ -52,7 +52,7 @@ def get_product_elements(driver):
             pass
 
         # get the products on the page
-        get_visible_products(driver, product_elements, seen_html)
+        get_visible_products(driver, product_elements, saved_html)
 
         # stop when no new products are collected, note that there is a buffer at the end of the page
         if len(product_elements) == p_count:
